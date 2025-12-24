@@ -22,9 +22,12 @@ ASSET_CHANNEL_ID = "@DhanWorksMember"
 # 1. /start 欢迎语素材组 (Welcome Assets)
 ASSET_MESSAGE_IDS = [4, 5, 6, 7]
 
-# 2. Tutorials -> How to Start Earning 素材组 (Start Earning Guide)
-# 【修改点】新增教程素材配置
-TUT_START_MESSAGE_IDS = [10, 11, 12]
+# 2. Tutorials -> How to Start Earning 素材组
+TUT_START_MESSAGE_IDS = [12, 13, 14]
+
+# 3. Tutorials -> Start First Task 素材组
+# 【修改点】新增任务引导素材配置
+TUT_TASK_MESSAGE_IDS = [15]
 
 # Optional: show Chinese review notes for you (default off)
 LANG_NOTE_CN = os.getenv("LANG_NOTE_CN", "0").strip()
@@ -223,7 +226,8 @@ def inline_tutorials_menu():
     return {
         "inline_keyboard": [
             [{"text": "① How to Start Earning", "callback_data": "tut:start"}],
-            [{"text": "② Payment Tasks Guide", "callback_data": "tut:payment"}],
+            # 【修改点】修改按钮文案
+            [{"text": "🟢 Start First Task (100 Rs)", "callback_data": "tut:payment"}],
             [{"text": "③ USDT Deposit Guide", "callback_data": "tut:usdt"}],
             [{"text": "④ Withdrawal & Balance", "callback_data": "tut:withdraw"}],
             [{"text": "⑤ Common Beginner Mistakes", "callback_data": "tut:mistakes"}],
@@ -597,14 +601,21 @@ def handle_callback_query(update: dict):
             forward_messages(chat_id, ASSET_CHANNEL_ID, TUT_START_MESSAGE_IDS)
         except Exception as e:
             print("Forward tutorials failed:", e)
-            # 如果转发失败，可以选择 fallback 到文本，或者忽略
-            # send_message(chat_id, "⚠️ Content temporarily unavailable.")
+        return
+
+    # 【修改点】 拦截 Payment Task 按钮，使用批量转发
+    if data == "tut:payment":
+        answer_callback(cq_id, "✅")
+        try:
+            forward_messages(chat_id, ASSET_CHANNEL_ID, TUT_TASK_MESSAGE_IDS)
+        except Exception as e:
+            print("Forward payment task guide failed:", e)
         return
 
     # Mappings
     map_responses = {
-        # "tut:start" 已被移除，由上方单独处理
-        "tut:payment": tut_payment_text,
+        # "tut:start" 已被移除
+        # "tut:payment" 已被移除
         "tut:usdt": tut_usdt_text,
         "tut:withdraw": tut_withdraw_text,
         "tut:mistakes": tut_mistakes_text,
