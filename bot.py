@@ -18,10 +18,13 @@ SUPPORT_GROUP_LINK = "https://t.me/YourSupportGroup"
 
 # Asset channel settings
 ASSET_CHANNEL_ID = "@DhanWorksMember"
-# 【修改点】这里改为列表，填入该组素材包含的所有ID
-# 例如：如果你的素材是 ID 7, 8, 9, 10 组成的一个组，就填 [7, 8, 9, 10]
-# 你需要根据实际情况调整这里的数字，直到转发出的内容完整为止
+
+# 1. /start 欢迎语素材组 (Welcome Assets)
 ASSET_MESSAGE_IDS = [4, 5, 6, 7]
+
+# 2. Tutorials -> How to Start Earning 素材组 (Start Earning Guide)
+# 【修改点】新增教程素材配置
+TUT_START_MESSAGE_IDS = [10, 11, 12]
 
 # Optional: show Chinese review notes for you (default off)
 LANG_NOTE_CN = os.getenv("LANG_NOTE_CN", "0").strip()
@@ -166,8 +169,6 @@ def forward_messages(chat_id: int, from_chat_id: str, message_ids: list[int]):
 def forward_message(chat_id: int, from_chat_id: str, message_id: int):
     """
     使用 forwardMessage 接口进行完整转发。
-    保留来源频道信息，用户点击头部可跳转回频道。
-    注意：forwardMessage 不支持附加 reply_markup (按钮)。
     """
     payload = {
         "chat_id": chat_id,
@@ -504,13 +505,13 @@ def handle_start(message: dict):
 
     upsert_user(user_id, username, campaign)
 
-    # 【修改点】使用 forward_messages 批量转发 ID 列表
+    # 转发 /start 欢迎素材组
     if ASSET_CHANNEL_ID and ASSET_MESSAGE_IDS:
         try:
             forward_messages(
                 chat_id=chat_id,
                 from_chat_id=ASSET_CHANNEL_ID,
-                message_ids=ASSET_MESSAGE_IDS,  # 传入列表
+                message_ids=ASSET_MESSAGE_IDS,
             )
         except Exception as e:
             print("forwardMessages on start failed:", e)
@@ -589,9 +590,20 @@ def handle_callback_query(update: dict):
         send_message(chat_id, "✅ Main Menu\n\nUse the menu below 👇", reply_markup=kb_main_menu())
         return
 
+    # 【修改点】 拦截教程按钮，使用批量转发
+    if data == "tut:start":
+        answer_callback(cq_id, "✅")
+        try:
+            forward_messages(chat_id, ASSET_CHANNEL_ID, TUT_START_MESSAGE_IDS)
+        except Exception as e:
+            print("Forward tutorials failed:", e)
+            # 如果转发失败，可以选择 fallback 到文本，或者忽略
+            # send_message(chat_id, "⚠️ Content temporarily unavailable.")
+        return
+
     # Mappings
     map_responses = {
-        "tut:start": tut_start_earning_text,
+        # "tut:start" 已被移除，由上方单独处理
         "tut:payment": tut_payment_text,
         "tut:usdt": tut_usdt_text,
         "tut:withdraw": tut_withdraw_text,
