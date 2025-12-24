@@ -271,7 +271,7 @@ def invite_inline_kb():
 # =========================
 # Content
 # =========================
-#def home_text(campaign: str):
+def home_text(campaign: str):
     return (
         "✅ Welcome to the DhanWorks EN Hub\n\n"
         f"Campaign: {campaign}\n\n"
