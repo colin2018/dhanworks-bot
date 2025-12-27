@@ -745,7 +745,7 @@ def handle_join(message:  dict):
         send_message(
             chat_id,
             "Before joining the Support Group, confirm:\n\n"
-            "✅ I will not DM members for "help"\n"
+            "✅ I will not DM members for 'help'\n"
             "✅ I will never share OTP / PIN / passwords\n"
             "✅ I will follow only official posts from this bot/channel\n\n"
             "Press I Agree to continue.",
