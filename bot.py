@@ -56,16 +56,6 @@ async def get_weather(ctx, city: str):
         description = data['weather'][0]['description']
         await ctx.send(f'Weather in {city}: {temp}°C, {description}')
     else:
-        # 用户未接受协议：显示协议内容
-        send_message(
-            chat_id,
-            "Before joining the Support Group, confirm:\n\n"
-            "✅ I will not DM members for 'help'\n"
-            "✅ I will never share OTP / PIN / passwords\n"
-            "✅ I will follow only official posts from this bot/channel\n\n"
-            "Press I Agree to continue.",
-            reply_markup=pledge_keyboard(),
-        )
         await ctx.send(f'Could not fetch weather for {city}.')
 
 @client.command(name='user_info')
